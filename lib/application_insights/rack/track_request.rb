@@ -56,6 +56,9 @@ module ApplicationInsights
         data = request_data(request_id, start_time, duration, status, success, options)
         context = telemetry_context(request_id, env['HTTP_REQUEST_ID'])
 
+        puts 'AI-data: ' + data.inspect
+        puts 'AI-context: ' + context.inspect
+
         @client.channel.write data, context, start_time
 
         if exception
