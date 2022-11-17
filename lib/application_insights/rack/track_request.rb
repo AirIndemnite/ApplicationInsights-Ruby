@@ -59,8 +59,8 @@ module ApplicationInsights
         data = request_data(request_id, start_time, duration, status, success, options)
         @client.channel.write data, context, start_time
 
-        env['ApplicationInsights.request.dependencies'].each {
-           |dep| @client.channel.write dep, context, start_time
+        env['ApplicationInsights.request.data'].each { |d|
+          @client.channel.write d['data'], context, d['start_time'] || start_time
         }
 
         if exception
