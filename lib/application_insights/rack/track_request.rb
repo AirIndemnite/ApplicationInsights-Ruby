@@ -36,6 +36,7 @@ module ApplicationInsights
         # Build a request ID, incorporating one from our request if one exists.
         request_id = request_id_header(env['HTTP_REQUEST_ID'])
         env['ApplicationInsights.request.id'] = request_id
+        env['ApplicationInsights.request.dependencies'] = []
 
         start = Time.now
         begin
@@ -53,13 +54,14 @@ module ApplicationInsights
         request = ::Rack::Request.new env
         options = options_hash(request)
 
-        data = request_data(request_id, start_time, duration, status, success, options)
         context = telemetry_context(request_id, env['HTTP_REQUEST_ID'])
 
-        puts 'AI-data: ' + data.inspect
-        puts 'AI-context: ' + context.inspect
-
+        data = request_data(request_id, start_time, duration, status, success, options)
         @client.channel.write data, context, start_time
+
+        env['ApplicationInsights.request.dependencies'].each {
+           |dep| @client.channel.write dep, context, start_time
+        }
 
         if exception
           @client.track_exception exception, handled_at: 'Unhandled'
