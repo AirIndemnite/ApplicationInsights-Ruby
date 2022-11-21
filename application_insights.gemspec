@@ -6,7 +6,7 @@ require 'application_insights/version'
 Gem::Specification.new do |spec|
   spec.name          = 'application_insights'
   spec.version       = ApplicationInsights::VERSION
-  spec.authors       = ['Microsoft']
+  spec.authors       = ['Microsoft', 'Air Indemnité']
   spec.email         = ['aiengdisc@microsoft.com']
   spec.summary       = %q{Application Insights SDK for Ruby}
   spec.description   = %q{This project extends the Application Insights API surface to support Ruby.}
