@@ -7,6 +7,8 @@ module ApplicationInsights
   module Rack
     # Track every request and sends the request data to Application Insights.
     class TrackRequest
+      HTTP_REQUEST_ID = 'HTTP_REQUEST_ID'.freeze
+
       # Initializes a new instance of the class.
       # @param [Object] app the inner rack application.
       # @param [String] instrumentation_key to identify which Application Insights
@@ -34,7 +36,7 @@ module ApplicationInsights
       # @param [Hash] env the rack environment.
       def call(env)
         # Build a request ID, incorporating one from our request if one exists.
-        request_id = request_id_header(env['HTTP_REQUEST_ID'])
+        request_id = request_id_header(env[HTTP_REQUEST_ID])
         env['ApplicationInsights.request.id'] = request_id
         env['ApplicationInsights.request.data'] = []
 
@@ -54,7 +56,7 @@ module ApplicationInsights
         request = ::Rack::Request.new env
         options = options_hash(request)
 
-        context = telemetry_context(request_id, env['HTTP_REQUEST_ID'])
+        context = telemetry_context(request_id, env[HTTP_REQUEST_ID])
 
         data = request_data(request_id, start_time, duration, status, success, options)
         @client.channel.write data, context, start_time
@@ -93,6 +95,7 @@ module ApplicationInsights
         Time.at(duration_seconds).gmtime.strftime("00.%H:%M:%S.%7N")
       end
 
+      # Flat request-Id protocol, cf. https://github.com/dotnet/runtime/blob/main/src/libraries/System.Diagnostics.DiagnosticSource/src/HttpCorrelationProtocol.md
       def request_id_header(request_id)
         valid_request_id_header = valid_request_id(request_id)
 
